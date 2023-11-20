@@ -16,13 +16,16 @@ public class Player : MonoBehaviour
     public AudioClip powerupSound;
     public AudioClip powerdownSound;
     private bool betterWeapon;
+	private bool shieldOn;
     public GameObject thruster;
+	public GameObject shield;
 
     // Start is called before the first frame update
     void Start()
     {
         playerSpeed = 6f;
         betterWeapon = false;
+		shieldOn = false;
         lives = 3;
         gM = GameObject.Find("GameManager");
     }
@@ -65,6 +68,13 @@ public class Player : MonoBehaviour
 
     public void LoseLife()
     {
+		if(shieldOn == true)
+		{
+			shieldOn = false;
+			shield.SetActive(false);
+			gM.GetComponent<GameManager>().PowerupChange("No Powerup");
+			return;
+		}
         lives--;
         //lives -= 1;
         //lives = lives - 1;
@@ -121,6 +131,9 @@ public class Player : MonoBehaviour
                 } else if (tempInt == 3)
                 {
                     //Shield Powerup
+					shield.SetActive(true);
+					shieldOn = true;
+					StartCoroutine("ShieldPowerDown");
                     gM.GetComponent<GameManager>().PowerupChange("Shield");
                 }
                 break;
@@ -141,6 +154,15 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(4f);
         AudioSource.PlayClipAtPoint(powerdownSound, transform.position);
         betterWeapon = false;
+        gM.GetComponent<GameManager>().PowerupChange("No Powerup");
+    }
+	
+	IEnumerator ShieldPowerDown ()
+    {
+        yield return new WaitForSeconds(4f);
+        AudioSource.PlayClipAtPoint(powerdownSound, transform.position);
+        shield.SetActive(false);
+		shieldOn = false;
         gM.GetComponent<GameManager>().PowerupChange("No Powerup");
     }
 
